@@ -1,31 +1,26 @@
 <template >
-    <div class="Container">
-        <h1>Codigos Estados</h1>
+    <div class="container-lista">
+        <h1>Códigos de Estados</h1>
         <ul id="lista-estados">
             <li v-for="item in listaEstados">
                 {{ item.state }}
             </li>
         </ul>
     </div>
-
-    <button v-on:click="iniciar"> Cargar lista </button>
-    <input type="text" v-model="estadoId">
-    <button v-on:click="buscarEstado">Buscar estado</button>
-    <div v-if="resultadp">
-        <h1>state </h1>
-        <input type="text" v-model="Estado">
-        <h1>positive</h1>
-        <input type="text" v-model="positivos">
-        <h1>totalTestResults</h1>
-        <input type="text" v-model="totalResul">
-        <h1>hospitalizedCurrently</h1>
-        <input type="text" v-model="hospitalizados">
-        <h1>death</h1>
-        <input type="text" v-model="muertos">
-        <h1>totalTestsViral</h1>
-        <input type="text" v-model="totalViral">
-        <h1>deathIncrease</h1>
-        <input type="text" v-model="mueresIncremento">
+    <input v-on:keypress.enter="buscarEstado()" type="text" v-model="estadoId" placeholder="Ingrese código de estado">
+    <div class="container-resultado" v-if="estado">
+        <h2>Casos positivos:</h2>
+        <input type="text" v-model="positivos" readonly>
+        <h2>Total de resultados de pruebas:</h2>
+        <input type="text" v-model="totalResul" readonly>
+        <h2>Actualmente hospitalizados:</h2>
+        <input type="text" v-model="hospitalizados" readonly>
+        <h2>Muertos</h2>
+        <input type="text" v-model="muertos" readonly>
+        <h2>Casos positivos virales:</h2>
+        <input type="text" v-model="totalViral" readonly>
+        <h2>Número de aumento de muertes:</h2>
+        <input type="text" v-model="mueresIncremento" readonly>
     </div>
 </template>
 <script>
@@ -34,9 +29,7 @@ export default {
         return {
             listaEstados: null,
             estadoId: null,
-            resultadp: false,
-
-            Estado: null,
+            estado: null,
             positivos: null,
             totalResul: null,
             hospitalizados: null,
@@ -57,37 +50,60 @@ export default {
             const data = await fetch("https://api.covidtracking.com/v1/states/" + state + "/current.json").then((r) => r.json())
             return data
         },
-
-        async contruirLista() {
-            const vectorRetornoEstados = []
-            const vectorObjetosEstados = this.APIlistEstados()
-            for (let i = 0; i < 57; i++) {
-                const obj = await this.contruirObjetoLista(state)
-                vectorRetornoEstados.unshift(obj)
-            }
-            return vectorRetornoEstados
-
-
-        },
-        async contruirObjetoLista(estado) {
-            const { state, positive, totalTestResults, hospitalizedCurrently, death, totalTestsViral, deathIncrease } = this.APIlistEstadosPorEstate(estado)
-            const objetoEstado = { Estado: state, positivos: positive, totalResul: totalTestResults, hospitalizados: hospitalizedCurrently, muertos: death, totalViral: totalTestsViral, mueresIncremento: deathIncrease }
-            return objetoEstado
-        },
         async buscarEstado() {
-            this.resultadp = true
-            const { state, positive, totalTestResults, hospitalizedCurrently, death, totalTestsViral, deathIncrease } = await this.contruirObjetoLista(this.estadoId)
-            this.Estado = state
+            const { state, positive, totalTestResults, hospitalizedCurrently, death, totalTestsViral, deathIncrease } = await this.APIlistEstadosPorEstate(this.estadoId.toLowerCase())
+            this.estado = state
             this.positivos = positive
-
+            this.totalResul = totalTestResults
+            this.hospitalizados = hospitalizedCurrently
+            this.muertos = death
+            this.totalViral = totalTestsViral
+            this.mueresIncremento = deathIncrease
         }
-    }
+    },
+    mounted() {
+        this.iniciar()
+    },
 }
 </script>
 <style >
 #lista-estados {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto auto auto;
     list-style: none;
+}
+
+.container-resultado {
+    background-color: rgb(179, 175, 175);
+    width: 300px;
+    margin: 0px auto;
+    text-align: left;
+    margin-top: 30px;
+    padding-bottom: 15px;
+    border-radius: 5px;
+}
+
+.container-resultado h2,
+input {
+    margin-left: 15px;
+    text-align: left;
+    font-size: 90%;
+}
+
+
+.container-resultado h2 {
+    padding-top: 15px;
+}
+
+input {
+    border-radius: 5px;
+    padding-left: 5px;
+    border-style: solid;
+
+}
+
+.container-lista {
+    width: 35vw;
+    margin: 0px auto;
 }
 </style>
