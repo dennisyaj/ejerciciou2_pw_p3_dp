@@ -7,13 +7,10 @@
             </li>
         </ul>
     </div>
-
-    <button v-on:click="iniciar"> Cargar lista </button>
-    <input type="text" v-model="estadoId">
-    <button v-on:click="buscarEstado">Buscar estado</button>
-    <div v-if="resultadp">
+    <input v-on:keypress.enter="buscarEstado()" type="text" v-model="estadoId">
+    <div class="container-resultado" v-if="estado">
         <h1>state </h1>
-        <input type="text" v-model="Estado">
+        <input type="text" v-model="estado">
         <h1>positive</h1>
         <input type="text" v-model="positivos">
         <h1>totalTestResults</h1>
@@ -34,9 +31,7 @@ export default {
         return {
             listaEstados: null,
             estadoId: null,
-            resultadp: false,
-
-            Estado: null,
+            estado: null,
             positivos: null,
             totalResul: null,
             hospitalizados: null,
@@ -57,31 +52,52 @@ export default {
             const data = await fetch("https://api.covidtracking.com/v1/states/" + state + "/current.json").then((r) => r.json())
             return data
         },
-
-        async contruirLista() {
-            const vectorRetornoEstados = []
-            const vectorObjetosEstados = this.APIlistEstados()
-            for (let i = 0; i < 57; i++) {
-                const obj = await this.contruirObjetoLista(state)
-                vectorRetornoEstados.unshift(obj)
-            }
-            return vectorRetornoEstados
-
-
-        },
-        async contruirObjetoLista(estado) {
-            const { state, positive, totalTestResults, hospitalizedCurrently, death, totalTestsViral, deathIncrease } = this.APIlistEstadosPorEstate(estado)
-            const objetoEstado = { Estado: state, positivos: positive, totalResul: totalTestResults, hospitalizados: hospitalizedCurrently, muertos: death, totalViral: totalTestsViral, mueresIncremento: deathIncrease }
-            return objetoEstado
-        },
         async buscarEstado() {
-            this.resultadp = true
-            const { state, positive, totalTestResults, hospitalizedCurrently, death, totalTestsViral, deathIncrease } = await this.contruirObjetoLista(this.estadoId)
-            this.Estado = state
+            const { state, positive, totalTestResults, hospitalizedCurrently, death, totalTestsViral, deathIncrease } = await this.APIlistEstadosPorEstate(this.estadoId)
+            this.estado = state
             this.positivos = positive
-
+            this.totalResul = totalTestResults
+            this.hospitalizados = hospitalizedCurrently
+            this.muertos = death
+            this.totalViral = totalTestsViral
+            this.mueresIncremento = deathIncrease
         }
-    }
+    },
+    mounted() {
+        this.iniciar()
+        console.log('mounted')
+    },
+    beforeCreate() {
+        console.log('beforeCreate')
+    },
+    created() {
+        console.log('created')
+    },
+    beforeMount() {
+        console.log('beforeMount')
+    },
+    updated() {
+        console.log('updated')
+    },
+    activated() {
+        console.log('activated')
+    },
+    beforeUnmount() {
+        console.log('beforeUnmount')
+    },
+    unmounted() {
+        console.log('unmounted')
+    },
+    renderTracked() {
+        console.log('renderTracked')
+    },
+    errorCaptured() {
+        console.log('errorCaptured')
+    },
+    deactivated() {
+        console.log('deactivated')
+    },
+
 }
 </script>
 <style >
@@ -89,5 +105,16 @@ export default {
     display: grid;
     grid-template-columns: auto auto auto;
     list-style: none;
+}
+
+.container-resultado {
+    background-color: gray;
+    width: 300px;
+    text-align: center;
+    margin: 10px auto;
+}
+
+.container-resultado h1 {
+    font-size: 90%;
 }
 </style>
